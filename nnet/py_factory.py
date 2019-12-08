@@ -36,6 +36,7 @@ class NetworkFactory(object):
         super(NetworkFactory, self).__init__()
 
         module_file = "models.{}".format(system_configs.snapshot_name)
+        module_file = '-'.join(module_file.split('-')[:2])
         print("module_file: {}".format(module_file))
         nnet_module = importlib.import_module(module_file)
 
@@ -66,7 +67,8 @@ class NetworkFactory(object):
             raise ValueError("unknown optimizer")
 
     def cuda(self):
-        self.model.cuda()
+        # self.model.cuda()  # original code
+        self.network.cuda()
 
     def train_mode(self):
         self.network.train()

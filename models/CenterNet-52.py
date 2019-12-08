@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from .py_utils import kp, AELoss, _neg_loss, convolution, residual
 from .py_utils import TopPool, BottomPool, LeftPool, RightPool
+from config import system_configs
 
 class pool(nn.Module):
     def __init__(self, dim, pool1, pool2):
@@ -129,7 +130,9 @@ class model(kp):
         n       = 5
         dims    = [256, 256, 384, 384, 384, 512]
         modules = [2, 2, 2, 2, 2, 4]
-        out_dim = 80
+        out_dims = {'MSCOCO': 80,
+                    'WideEyes': 53}
+        out_dim = out_dims[system_configs.dataset]
 
         super(model, self).__init__(
             db, n, 1, dims, modules, out_dim,

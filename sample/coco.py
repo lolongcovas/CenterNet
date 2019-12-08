@@ -93,7 +93,9 @@ def kp_detection(db, k_ind, data_aug, debug):
 
         # reading detections
         detections = db.detections(db_ind)
-
+        
+        # TODO, add padding to make image square
+        
         # cropping an image randomly
         if not debug and rand_crop:
             image, detections = random_crop(image, detections, rand_scales, input_size, border=border)

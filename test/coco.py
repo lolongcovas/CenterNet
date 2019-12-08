@@ -319,3 +319,13 @@ def kp_detection(db, nnet, result_dir, debug=False, decode_func=kp_decode):
 
 def testing(db, nnet, result_dir, debug=False):
     return globals()[system_configs.sampling_function](db, nnet, result_dir, debug=debug)
+
+
+def evaluate(db, result_dir):
+    result_json = os.path.join(result_dir, 'results.json')
+    
+    categories = db.configs["categories"]
+    cls_ids = list(range(1, categories + 1))
+    db_inds = db.db_inds
+    image_ids = [db.image_ids(ind) for ind in db_inds]
+    db.evaluate(result_json, cls_ids, image_ids)

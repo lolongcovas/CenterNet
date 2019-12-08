@@ -17,7 +17,11 @@ from utils import stdout_to_tqdm
 from config import system_configs
 from nnet.py_factory import NetworkFactory
 from torch.multiprocessing import Process, Queue, Pool
+from torch.utils.tensorboard import SummaryWriter
 from db.datasets import datasets
+
+
+writer = SummaryWriter('logs')
 
 torch.backends.cudnn.enabled   = True
 torch.backends.cudnn.benchmark = True
@@ -25,7 +29,7 @@ torch.backends.cudnn.benchmark = True
 def parse_args():
     parser = argparse.ArgumentParser(description="Train CenterNet")
     parser.add_argument("cfg_file", help="config file", type=str)
-    parser.add_argument("--iter", dest="start_iter",
+    parser.add_argument("--start_iter", dest="start_iter",
                         help="train at iteration i",
                         default=0, type=int)
     parser.add_argument("--threads", dest="threads", default=4, type=int)
@@ -47,11 +51,14 @@ def prefetch_data(db, queue, sample_data, data_aug):
             raise e
 
 def pin_memory(data_queue, pinned_data_queue, sema):
+    device = 'cuda'
     while True:
         data = data_queue.get()
 
-        data["xs"] = [x.pin_memory() for x in data["xs"]]
-        data["ys"] = [y.pin_memory() for y in data["ys"]]
+        data["xs"] = [x.pin_memory().to(device) for x in data["xs"]]
+        data["ys"] = [y.pin_memory().to(device) for y in data["ys"]]
+        # data["xs"] = [x.pin_memory() for x in data["xs"]]
+        # data["ys"] = [y.pin_memory() for y in data["ys"]]
 
         pinned_data_queue.put(data)
 
@@ -119,7 +126,6 @@ def train(training_dbs, validation_db, start_iter=0):
             raise ValueError("pretrained model does not exist")
         print("loading from pretrained model")
         nnet.load_pretrained_params(pretrained_model)
-
     if start_iter:
         learning_rate /= (decay_rate ** (start_iter // stepsize))
 
@@ -146,6 +152,12 @@ def train(training_dbs, validation_db, start_iter=0):
                 print("regr loss at iteration {}:     {}".format(iteration, regr_loss.item()))
                 #print("cls loss at iteration {}:      {}\n".format(iteration, cls_loss.item()))
 
+                writer.add_scalar('total_loss/train', training_loss.item(), iteration)
+                writer.add_scalar('focal_loss/train', focal_loss.item(), iteration)
+                writer.add_scalar('pull_loss/train', pull_loss.item(), iteration)
+                writer.add_scalar('push_loss/train', push_loss.item(), iteration)
+                writer.add_scalar('regr_loss/train', regr_loss.item(), iteration)
+
             del training_loss, focal_loss, pull_loss, push_loss, regr_loss#, cls_loss
 
             if val_iter and validation_db.db_inds.size and iteration % val_iter == 0:
@@ -153,6 +165,7 @@ def train(training_dbs, validation_db, start_iter=0):
                 validation = pinned_validation_queue.get(block=True)
                 validation_loss = nnet.validate(**validation)
                 print("validation loss at iteration {}: {}".format(iteration, validation_loss.item()))
+                writer.add_scalar('total_loss/val', validation_loss.item(), iteration)
                 nnet.train_mode()
 
             if iteration % snapshot == 0:

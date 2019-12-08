@@ -27,6 +27,7 @@ def parse_args():
                         default="validation", type=str)
     parser.add_argument("--suffix", dest="suffix", default=None, type=str)
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--evaluate", action="store_true")
 
     args = parser.parse_args()
     return args
@@ -96,4 +97,14 @@ if __name__ == "__main__":
     print("db config...")
     pprint.pprint(testing_db.configs)
 
-    test(testing_db, args.split, args.testiter, args.debug, args.suffix)
+    if args.evaluate:
+        result_dir = system_configs.result_dir
+        result_dir = os.path.join(result_dir, str(None), args.split)
+        suffix = None
+        if suffix is not None:
+            result_dir = os.path.join(result_dir, suffix)
+        test_file = "test.{}".format(testing_db.data)
+        evaluate = importlib.import_module(test_file).evaluate
+        evaluate(testing_db, result_dir)
+    else:
+        test(testing_db, args.split, args.testiter, args.debug, args.suffix)
