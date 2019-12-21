@@ -15,6 +15,7 @@ from config import system_configs
 from utils import crop_image, normalize_
 from external.nms import soft_nms, soft_nms_merge
 
+
 colours = np.random.rand(80,3)
 
 def _rescale_dets(detections, ratios, borders, sizes):
@@ -84,6 +85,7 @@ def kp_detection(db, nnet, result_dir, debug=False, decode_func=kp_decode):
     }[db.configs["nms_algorithm"]]
 
     top_bboxes = {}
+
     for ind in tqdm(range(0, num_images), ncols=80, desc="locating kps"):
         db_ind = db_inds[ind]
 
@@ -101,6 +103,7 @@ def kp_detection(db, nnet, result_dir, debug=False, decode_func=kp_decode):
             new_width  = int(width * scale)
             new_center = np.array([new_height // 2, new_width // 2])
 
+            # N | M = M if N <= M else (N%M)*M+1
             inp_height = new_height | 127
             inp_width  = new_width  | 127
 
@@ -126,7 +129,9 @@ def kp_detection(db, nnet, result_dir, debug=False, decode_func=kp_decode):
 
             images = np.concatenate((images, images[:, :, :, ::-1]), axis=0)
             images = torch.from_numpy(images)
+            # do detection
             dets, center = decode_func(nnet, images, K, ae_threshold=ae_threshold, kernel=nms_kernel)
+            # post processing
             dets   = dets.reshape(2, -1, 8)
             center = center.reshape(2, -1, 4)
             dets[1, :, [0, 2]] = out_width - dets[1, :, [2, 0]]

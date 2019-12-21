@@ -23,7 +23,7 @@ def parse_args():
                         help="test at iteration i",
                         default=None, type=int)
     parser.add_argument("--split", dest="split",
-                        help="which split to use",
+                        help="which split to use: [training, validation, testing]",
                         default="validation", type=str)
     parser.add_argument("--suffix", dest="suffix", default=None, type=str)
     parser.add_argument("--debug", action="store_true")
