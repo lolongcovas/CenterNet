@@ -62,9 +62,9 @@ std::vector<at::Tensor> pool_backward(
     // auto gt_mask    = at::zeros(torch::CUDA(at::kByte),  {batch, channel, height});
     // auto max_temp   = at::zeros(torch::CUDA(at::kFloat), {batch, channel, height});
     // pytorch 1.0.0
-    //auto gt_mask    = torch::zeros({batch, channel, height}, at::device(at::kCUDA).dtype(at::kByte));
+    auto gt_mask    = torch::zeros({batch, channel, height}, at::device(at::kCUDA).dtype(at::kByte));
     // pytorch 1.3.0
-    auto gt_mask    = torch::zeros({batch, channel, height}, at::device(at::kCUDA).dtype(at::kBool));
+    // auto gt_mask    = torch::zeros({batch, channel, height}, at::device(at::kCUDA).dtype(at::kBool));
     auto max_temp   = torch::zeros({batch, channel, height}, at::device(at::kCUDA).dtype(at::kFloat));
 
     for (int32_t ind = 0; ind < width - 1; ++ind) {
