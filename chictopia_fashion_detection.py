@@ -155,13 +155,22 @@ if __name__ == '__main__':
         image = cv2.imread(os.path.join(args.bpath, filename))
         if image is None:
             continue
-        
+
+        height, width = image.shape[:2]
+        if max(height, width) > 512:
+            ori_scale = max(height, width) / 512.
+            image = cv2.resize(image, (int(width/ori_scale), int(height/ori_scale)), cv2.INTER_LINEAR)
+        else:
+            ori_scale = 1
         detections = apply_detection(image, model, scales=[1],
                                      decode_func=kp_decode,
                                      categories=len(class_labels),
                                      top_k=100,
                                      merge_bbox=False, nms_threshold=args.nms_thr,
                                      avg=_mean, std=_std)
+
+        for k, v in detections.items():
+            detections[k] = v[:4] * ori_scale
 
         bboxes = defaultdict(list)
         for class_name, j in class_labels.items():
