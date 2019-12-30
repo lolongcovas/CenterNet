@@ -142,7 +142,8 @@ if __name__ == '__main__':
     #         filenames = filenames2
                                                                                     
     if args.shuffle:
-        import random
+        import random, time
+        random.seed = int(time.time())
         random.shuffle(filenames)
 
     _mean = np.array([0.40789654, 0.44719302, 0.47026115], dtype=np.float32)
