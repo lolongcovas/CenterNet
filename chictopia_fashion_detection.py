@@ -129,18 +129,18 @@ if __name__ == '__main__':
     #                                 total=len(input_filenames)))
     #         filenames = [u for u, o in zip(filenames, output) if o]
 
-    if not args.o:
-        check_filename = os.path.exists
-        with Pool(args.nt) as pool:
-            # check output detection files
-            output_filenames = [os.path.join(args.output, x + '.json') for x in filenames]
-            output = list(tqdm.tqdm(pool.imap(check_filename, output_filenames),
-                                    total=len(output_filenames)))
-            filenames2 = [u for u, o in zip(filenames, output) if not o]
+    # if not args.o:
+    #     check_filename = os.path.exists
+    #     with Pool(args.nt) as pool:
+    #         # check output detection files
+    #         output_filenames = [os.path.join(args.output, x + '.json') for x in filenames]
+    #         output = list(tqdm.tqdm(pool.imap(check_filename, output_filenames),
+    #                                 total=len(output_filenames)))
+    #         filenames2 = [u for u, o in zip(filenames, output) if not o]
             
-            print('There are %d files, %d already exist, and %d will be computed',
-                  len(filenames), len(filenames)-len(filenames2), len(filenames2))
-            filenames = filenames2
+    #         print('There are %d files, %d already exist, and %d will be computed',
+    #               len(filenames), len(filenames)-len(filenames2), len(filenames2))
+    #         filenames = filenames2
                                                                                     
     if args.shuffle:
         import random
