@@ -130,6 +130,7 @@ if __name__ == '__main__':
     #         filenames = [u for u, o in zip(filenames, output) if o]
 
     # if not args.o:
+    #     check_filename = os.path.exists
     #     with Pool(args.nt) as pool:
     #         # check output detection files
     #         output_filenames = [os.path.join(args.output, x + '.json') for x in filenames]
